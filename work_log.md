@@ -1,0 +1,168 @@
+# 작업 로그 — keyword_filter
+
+> 자동 생성 by work_log.py 훅
+
+---
+
+- `2026-04-15 18:05` **Bash** — ls "/Users/nomos_macmini/nomos projects/sites/keyword_filter"
+- `2026-04-15 18:07` **Edit** — scraper.py
+- `2026-04-15 18:07` **Edit** — scraper.py
+- `2026-04-15 18:07` **Edit** — scraper.py
+- `2026-04-15 18:07` **Edit** — keyword_filter.py
+- `2026-04-15 18:10` **Bash** — ls "/Users/nomos_macmini/nomos projects/sites/keyword_filter/electron" && cat "/
+- `2026-04-15 19:27` **Write** — package.json
+- `2026-04-15 19:28` **Write** — main.js
+- `2026-04-15 19:28` **Edit** — keyword_filter.py
+- `2026-04-15 19:29` **Bash** — pip3 show python-whois 2>&1 | head -3; python3 -c "import python_whois" 2>&1; pi
+- `2026-04-15 19:29` **Bash** — pip3 list 2>/dev/null | grep -iE "whois|websocket|uvicorn"
+- `2026-04-15 19:29` **Bash** — pip3 search whois 2>/dev/null || pip3 install whois --dry-run 2>&1 | head -5
+- `2026-04-15 19:29` **Bash** — python3 -c "import uvicorn; print(uvicorn.__version__)" 2>&1; pip3 show uvicorn 
+- `2026-04-15 19:29` **Write** — requirements.txt
+- `2026-04-15 19:29` **Bash** — cd "/Users/nomos_macmini/nomos projects/sites/keyword_filter" && npm install --s
+- `2026-04-15 19:30` **Bash** — cd "/Users/nomos_macmini/nomos projects/sites/keyword_filter" && npm run dist:ma
+- `2026-04-15 19:30` **Bash** — ls -lh "/Users/nomos_macmini/nomos projects/sites/keyword_filter/dist/"
+- `2026-04-15 19:30` **Bash** — ls "/Users/nomos_macmini/nomos projects/sites/keyword_filter/dist/mac-arm64/키워드 
+- `2026-04-15 19:30` **Bash** — ls "/Users/nomos_macmini/nomos projects/sites/keyword_filter/dist/mac-arm64/키워드 
+- `2026-04-15 19:36` **Bash** — ls -lh "/Users/nomos_macmini/nomos projects/sites/keyword_filter/dist/"
+- `2026-04-15 19:36` **Bash** — echo "/Users/nomos_macmini/nomos projects/sites/keyword_filter/dist/"
+- `2026-04-15 19:36` **Bash** — open "/Users/nomos_macmini/nomos projects/sites/keyword_filter/dist/"
+- `2026-04-15 19:37` **Bash** — ls ~/Library/Logs/DiagnosticReports/ | grep -i "키워드\|keyword" | tail -5
+- `2026-04-15 19:38` **Bash** — ls ~/Library/Logs/DiagnosticReports/ | tail -10
+- `2026-04-15 19:38` **Bash** — cat ~/Library/Logs/DiagnosticReports/"키워드 필터 검색기-2026-04-15-193719.ips" | python
+- `2026-04-15 19:38` **Bash** — cat ~/Library/Logs/DiagnosticReports/"키워드 필터 검색기-2026-04-15-193719.ips" 2>&1 | h
+- `2026-04-15 19:38` **Bash** — cat ~/Library/Logs/DiagnosticReports/"키워드 필터 검색기-2026-04-15-193719.ips" | python
+- `2026-04-15 19:38` **Bash** — cd "/Users/nomos_macmini/nomos projects/sites/keyword_filter" && npm install --s
+- `2026-04-15 19:38` **Bash** — cd "/Users/nomos_macmini/nomos projects/sites/keyword_filter" && node -e "consol
+- `2026-04-15 19:38` **Bash** — ls "/Users/nomos_macmini/nomos projects/sites/keyword_filter/templates/"
+- `2026-04-15 19:39` **Write** — loading.html
+- `2026-04-15 19:39` **Edit** — main.js
+- `2026-04-15 19:39` **Bash** — cd "/Users/nomos_macmini/nomos projects/sites/keyword_filter" && npm run dist:ma
+- `2026-04-15 19:40` **Bash** — ls -lh "/Users/nomos_macmini/nomos projects/sites/keyword_filter/dist/"*.dmg
+- `2026-04-15 19:40` **Bash** — open "/Users/nomos_macmini/nomos projects/sites/keyword_filter/dist/"
+- `2026-04-15 19:41` **Bash** — ls -t ~/Library/Logs/DiagnosticReports/"키워드"* 2>/dev/null | head -3
+- `2026-04-15 19:42` **Bash** — cat ~/Library/Logs/DiagnosticReports/"키워드 필터 검색기-2026-04-15-194128.ips" | python
+- `2026-04-15 19:44` **Bash** — "/Applications/키워드 필터 검색기.app/Contents/MacOS/키워드 필터 검색기" 2>&1 | head -30 & sleep
+- `2026-04-15 19:45` **Bash** — cat ~/Library/Logs/DiagnosticReports/"키워드"* 2>/dev/null | python3 -c " import sy
+- `2026-04-15 19:45` **Bash** — # 앱 실행 환경의 PATH (터미널과 다름) echo "터미널 python3:"; which python3 echo "터미널 python:";
+- `2026-04-15 19:45` **Bash** — /usr/bin/python3 --version 2>&1 echo "---" /opt/homebrew/bin/python3.13 --versio
+- `2026-04-15 19:46` **Edit** — main.js
+- `2026-04-15 19:46` **Bash** — cd "/Users/nomos_macmini/nomos projects/sites/keyword_filter" && timeout 10 npm 
+- `2026-04-15 19:46` **Bash** — cd "/Users/nomos_macmini/nomos projects/sites/keyword_filter" && npm start & sle
+- `2026-04-15 19:47` **Bash** — cat /private/tmp/claude-501/-Users-nomos-macmini-nomos-projects-sites-keyword-fi
+- `2026-04-15 19:47` **Edit** — main.js
+- `2026-04-15 19:47` **Edit** — main.js
+- `2026-04-15 19:48` **Bash** — cd "/Users/nomos_macmini/nomos projects/sites/keyword_filter" && npm start > /tm
+- `2026-04-15 19:48` **Bash** — ls ~/Library/Application\ Support/keyword-filter/venv/bin/ 2>/dev/null | head -1
+- `2026-04-15 19:48` **Bash** — ls ~/Library/Application\ Support/keyword-filter/venv/lib/python*/site-packages/
+- `2026-04-15 19:48` **Bash** — cd "/Users/nomos_macmini/nomos projects/sites/keyword_filter" && npm run dist:ma
+- `2026-04-15 19:48` **Bash** — open "/Users/nomos_macmini/nomos projects/sites/keyword_filter/dist/"
+- `2026-04-15 19:54` **Bash** — ls -t ~/Library/Logs/DiagnosticReports/"키워드"* 2>/dev/null | head -2
+- `2026-04-15 19:54` **Bash** — cat ~/Library/Logs/DiagnosticReports/"키워드 필터 검색기-2026-04-15-194455.ips" | python
+- `2026-04-15 19:55` **Edit** — main.js
+- `2026-04-15 19:55` **Edit** — main.js
+- `2026-04-15 19:55` **Bash** — cd "/Users/nomos_macmini/nomos projects/sites/keyword_filter" && npm start > /tm
+- `2026-04-15 19:55` **Bash** — ls -lt ~/Library/Logs/DiagnosticReports/"키워드"* 2>/dev/null | head -3
+- `2026-04-15 19:56` **Bash** — cd "/Users/nomos_macmini/nomos projects/sites/keyword_filter" && npm install --s
+- `2026-04-15 19:56` **Bash** — cd "/Users/nomos_macmini/nomos projects/sites/keyword_filter" && npm start > /tm
+- `2026-04-15 19:57` **Bash** — cd "/Users/nomos_macmini/nomos projects/sites/keyword_filter" && \   ~/Library/A
+- `2026-04-15 19:57` **Bash** — curl -s http://localhost:8766/ | head -5 echo "---" kill 46637 2>/dev/null
+- `2026-04-15 19:58` **Bash** — cd "/Users/nomos_macmini/nomos projects/sites/keyword_filter" && npm start > /tm
+- `2026-04-15 19:58` **Bash** — cat /tmp/kf_v35b.log && ls -lt ~/Library/Logs/DiagnosticReports/"키워드"* 2>/dev/nu
+- `2026-04-15 19:58` **Bash** — ps aux | grep -E "electron|keyword_filter|python" | grep -v grep | head -10
+- `2026-04-15 19:58` **Edit** — main.js
+- `2026-04-15 19:58` **Bash** — # 이전 Electron 프로세스 정리 pkill -f "keyword_filter" 2>/dev/null; pkill -f "electron.
+- `2026-04-15 19:58` **Bash** — cd "/Users/nomos_macmini/nomos projects/sites/keyword_filter" && npm start > /tm
+- `2026-04-15 19:58` **Bash** — cat /tmp/kf_final.log
+- `2026-04-15 19:58` **Bash** — ps aux | grep -E "keyword_filter\.py" | grep -v grep
+- `2026-04-15 19:58` **Bash** — ls -lt ~/Library/Logs/DiagnosticReports/"키워드"* 2>/dev/null | head -2 echo "---" 
+- `2026-04-15 19:59` **Bash** — pkill -f "electron.*keyword" 2>/dev/null; pkill -f "keyword_filter\.py" 2>/dev/n
+- `2026-04-15 19:59` **Bash** — cd "/Users/nomos_macmini/nomos projects/sites/keyword_filter" && npm run dist:ma
+- `2026-04-15 19:59` **Bash** — open "/Users/nomos_macmini/nomos projects/sites/keyword_filter/dist/"
+- `2026-04-15 20:01` **Bash** — ls -lt ~/Library/Logs/DiagnosticReports/"키워드"* 2>/dev/null | head -2
+- `2026-04-15 20:01` **Bash** — cat ~/Library/Logs/DiagnosticReports/"키워드 필터 검색기-2026-04-15-200050.ips" | python
+- `2026-04-15 20:01` **Bash** — cd "/Users/nomos_macmini/nomos projects/sites/keyword_filter" && \   ~/Library/A
+- `2026-04-15 20:02` **Write** — launcher_mac.py
+- `2026-04-15 20:02` **Bash** — cd "/Users/nomos_macmini/nomos projects/sites/keyword_filter" && \   ~/Library/A
+- `2026-04-15 20:02` **Bash** — cat /tmp/launcher_test.log
+- `2026-04-15 20:02` **Bash** — ps aux | grep -E "launcher_mac|keyword_filter" | grep -v grep
+- `2026-04-15 20:02` **Bash** — ls -lt ~/Library/Logs/DiagnosticReports/"키워드"* 2>/dev/null | head -2 echo "---" 
+- `2026-04-15 20:02` **Bash** — pkill -f launcher_mac 2>/dev/null; pkill -f keyword_filter 2>/dev/null; echo "정리
+- `2026-04-15 20:02` **Write** — launcher_mac.spec
+- `2026-04-15 20:03` **Bash** — cd "/Users/nomos_macmini/nomos projects/sites/keyword_filter" && \   ~/Library/A
+- `2026-04-15 20:03` **Bash** — codesign --deep --force --sign - \   "/Users/nomos_macmini/nomos projects/sites/
+- `2026-04-15 20:03` **Bash** — # 개별 서명 (deep 대신 수동으로 각 번들 서명) find "/Users/nomos_macmini/nomos projects/sites/k
+- `2026-04-15 20:03` **Bash** — cat /tmp/app_test.log && echo "---프로세스---" && ps aux | grep "키워드\|keyword_filter
+- `2026-04-15 20:03` **Bash** — ls -lt ~/Library/Logs/DiagnosticReports/ 2>/dev/null | head -5 echo "---" lsof -
+- `2026-04-15 20:03` **Bash** — pkill -f "키워드 필터" 2>/dev/null; pkill -f "keyword_filter" 2>/dev/null # Applicati
+- `2026-04-15 20:03` **Bash** — open "/Applications/키워드 필터 검색기.app"
+- `2026-04-15 20:06` **Bash** — ls -lt ~/Library/Logs/DiagnosticReports/"키워드"* 2>/dev/null | head -2
+- `2026-04-15 20:06` **Bash** — cat ~/Library/Logs/DiagnosticReports/"키워드 필터 검색기-2026-04-15-200340.ips" | python
+- `2026-04-15 20:07` **Bash** — ls "/Applications/키워드 필터 검색기.app/Contents/MacOS/" echo "---" ls "/Applications/키
+- `2026-04-15 20:07` **Bash** — rm -rf "/Applications/키워드 필터 검색기.app" echo "삭제 완료: $?"
+- `2026-04-15 20:07` **Bash** — cp -R "/Users/nomos_macmini/nomos projects/sites/keyword_filter/dist/키워드 필터 검색기.
+- `2026-04-15 20:07` **Bash** — ls "/Applications/키워드 필터 검색기.app/Contents/Frameworks/" 2>/dev/null || echo "Fram
+- `2026-04-15 20:07` **Bash** — open "/Applications/키워드 필터 검색기.app"
+- `2026-04-15 20:07` **Bash** — ps aux | grep -E "키워드|keyword_filter" | grep -v grep | head -5 echo "---포트---" l
+- `2026-04-15 20:12` **Edit** — keyword_filter.py
+- `2026-04-15 20:12` **Edit** — index.html
+- `2026-04-15 20:14` **Edit** — index.html
+- `2026-04-15 20:17` **Bash** — cd "/Users/nomos_macmini/nomos projects/sites/keyword_filter" && lsof -i :8766 2
+- `2026-04-15 20:17` **Bash** — ps aux | grep -E "keyword_filter|launcher_mac" | grep -v grep | head -5
+- `2026-04-15 20:17` **Bash** — ps aux | grep -i "keyword\|키워드" | grep -v grep | head -5
+- `2026-04-15 20:17` **Bash** — lsof -i :8766 -P 2>/dev/null | grep LISTEN
+- `2026-04-15 20:18` **Bash** — ps -p 51544 -o command= 2>/dev/null
+- `2026-04-15 20:18` **Bash** — cd "/Users/nomos_macmini/nomos projects/sites/keyword_filter" && source ~/Librar
+- `2026-04-15 20:18` **Bash** — cd "/Users/nomos_macmini/nomos projects/sites/keyword_filter" && source ~/Librar
+- `2026-04-15 20:18` **Bash** — sleep 1 && lsof -i :8767 -P 2>/dev/null | grep LISTEN
+- `2026-04-15 20:20` **Bash** — curl -s http://127.0.0.1:8767/settings | python3 -c "import sys,json; d=json.loa
+- `2026-04-15 20:25` **Edit** — index.html
+- `2026-04-15 20:29` **Bash** — ps aux | grep osascript | grep -v grep
+- `2026-04-15 20:29` **Bash** — kill 56100 2>/dev/null; echo "killed"
+- `2026-04-15 20:30` **Edit** — keyword_filter.py
+- `2026-04-15 20:30` **Bash** — kill $(lsof -ti :8767) 2>/dev/null; sleep 1; cd "/Users/nomos_macmini/nomos proj
+- `2026-04-15 20:30` **Bash** — sleep 1.5 && lsof -i :8767 -P 2>/dev/null | grep LISTEN
+- `2026-04-15 20:32` **Bash** — ps aux | grep osascript | grep -v grep
+- `2026-04-15 20:34` **Bash** — ps aux | grep osascript | grep -v grep
+- `2026-04-15 20:37` **Bash** — kill $(lsof -ti :8767) 2>/dev/null; echo "dev server stopped"
+- `2026-04-15 20:37` **Bash** — cd "/Users/nomos_macmini/nomos projects/sites/keyword_filter" && source ~/Librar
+- `2026-04-15 20:37` **Bash** — # 기존 앱 프로세스 종료 kill $(lsof -ti :8766) 2>/dev/null sleep 1 # 기존 앱 삭제 후 새 앱 복사 rm 
+- `2026-04-15 20:37` **Bash** — open "/Applications/키워드 필터 검색기.app"
+- `2026-04-15 20:45` **Write** — feedback_free_first.md
+- `2026-04-15 20:46` **Edit** — scraper.py
+- `2026-04-15 20:48` **Bash** — kill $(lsof -ti :8766) 2>/dev/null; echo "앱 종료"
+- `2026-04-15 20:49` **Bash** — cd "/Users/nomos_macmini/nomos projects/sites/keyword_filter" && source ~/Librar
+- `2026-04-15 20:49` **Bash** — rm -rf "/Applications/키워드 필터 검색기.app" && cp -R "/Users/nomos_macmini/nomos proje
+- `2026-04-15 21:04` **Edit** — scraper.py
+- `2026-04-15 21:04` **Edit** — scraper.py
+- `2026-04-15 21:04` **Edit** — scraper.py
+- `2026-04-15 21:04` **Edit** — scraper.py
+- `2026-04-15 21:05` **Edit** — keyword_filter.py
+- `2026-04-15 21:05` **Edit** — keyword_filter.py
+- `2026-04-15 21:06` **Write** — auto_collect.py
+- `2026-04-15 21:07` **Write** — com.nomos.keyword-filter.plist
+- `2026-04-15 21:07` **Write** — com.nomos.keyword-filter.plist
+- `2026-04-15 21:07` **Bash** — plutil -lint ~/Library/LaunchAgents/com.nomos.keyword-filter.plist
+- `2026-04-15 21:07` **Bash** — launchctl load ~/Library/LaunchAgents/com.nomos.keyword-filter.plist 2>&1 && lau
+- `2026-04-15 21:08` **Bash** — cd "/Users/nomos_macmini/nomos projects/sites/keyword_filter" && source ~/Librar
+- `2026-04-15 21:08` **Bash** — cd "/Users/nomos_macmini/nomos projects/sites/keyword_filter" && source ~/Librar
+- `2026-04-15 21:08` **Bash** — cd "/Users/nomos_macmini/nomos projects/sites/keyword_filter" && ~/Library/Appli
+- `2026-04-15 21:08` **Bash** — cd "/Users/nomos_macmini/nomos projects/sites/keyword_filter" && ~/Library/Appli
+- `2026-04-15 21:24` **Bash** — tail -20 "/Users/nomos_macmini/nomos projects/sites/keyword_filter/logs/auto_col
+- `2026-04-15 21:24` **Edit** — scraper.py
+- `2026-04-15 21:24` **Bash** — tail -5 "/Users/nomos_macmini/nomos projects/sites/keyword_filter/logs/auto_coll
+- `2026-04-15 21:28` **Bash** — tail -3 "/Users/nomos_macmini/nomos projects/sites/keyword_filter/logs/auto_coll
+- `2026-04-15 21:34` **Bash** — tail -3 "/Users/nomos_macmini/nomos projects/sites/keyword_filter/logs/auto_coll
+- `2026-04-15 21:40` **Bash** — tail -3 "/Users/nomos_macmini/nomos projects/sites/keyword_filter/logs/auto_coll
+- `2026-04-15 21:50` **Bash** — tail -3 "/Users/nomos_macmini/nomos projects/sites/keyword_filter/logs/auto_coll
+- `2026-04-15 22:01` **Bash** — tail -10 "/Users/nomos_macmini/nomos projects/sites/keyword_filter/logs/auto_col
+- `2026-04-15 22:05` **Bash** — ls "/Users/nomos_macmini/Library/CloudStorage/GoogleDrive-jdan9791@gmail.com/내 드
+- `2026-04-15 22:05` **Bash** — ls "/Users/nomos_macmini/Library/CloudStorage/GoogleDrive-jdan9791@gmail.com/내 드
+- `2026-04-15 22:07` **Bash** — cat << 'PYEOF' | python3 - import os  base = "/Users/nomos_macmini/Library/Cloud
+- `2026-04-15 22:08` **Bash** — cat << 'PYEOF' | python3 - import os import shutil  base = "/Users/nomos_macmini
+- `2026-04-15 22:08` **Edit** — scraper.py
+- `2026-04-15 22:09` **Edit** — scraper.py
+- `2026-04-15 22:12` **Bash** — ls "/Users/nomos_macmini/Library/CloudStorage/GoogleDrive-jdan9791@gmail.com/내 드
+- `2026-04-15 22:14` **Bash** — ls "/Users/nomos_macmini/nomos projects/sites/keyword_filter/"
+- `2026-04-15 22:14` **Bash** — ls -la "/Users/nomos_macmini/nomos projects/sites/keyword_filter/build/" 2>/dev/
+- `2026-04-15 22:17` **Write** — .gitignore
+- `2026-04-15 22:17` **Bash** — cd "/Users/nomos_macmini/nomos projects/sites/keyword_filter" && rm -rf dist/ bu

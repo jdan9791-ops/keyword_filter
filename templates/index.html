@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>키워드 필터 검색기</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { background: #0f1117; color: #e5e7eb; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: #1a1d27; }
+    ::-webkit-scrollbar-thumb { background: #374151; border-radius: 3px; }
+    [contenteditable]:focus { outline: 1px solid #f97316; border-radius: 2px; padding: 0 2px; }
+    .card { background: #161b27; border: 1px solid #1f2937; border-radius: 12px; }
+    .accent { color: #f97316; }
+    .btn-primary { background: #f97316; color: white; border-radius: 8px; font-size: 13px; padding: 6px 16px; transition: background 0.15s; }
+    .btn-primary:hover { background: #ea6c0a; }
+    .btn-primary:disabled { opacity: 0.4; }
+    .btn-ghost { background: transparent; border: 1px solid #374151; color: #9ca3af; border-radius: 8px; font-size: 12px; padding: 5px 12px; transition: all 0.15s; }
+    .btn-ghost:hover { background: #1f2937; color: #e5e7eb; }
+    input[type=text], input[type=date], input[type=password], textarea {
+      background: #1a1d27; border: 1px solid #2d3748; color: #e5e7eb; border-radius: 8px; font-size: 12px;
+      outline: none; transition: border-color 0.15s;
+    }
+    input[type=text]:focus, input[type=date]:focus, input[type=password]:focus, textarea:focus {
+      border-color: #f97316;
+    }
+    .cb-orange {
+      appearance: none; width: 14px; height: 14px; border: 2px solid #4b5563;
+      border-radius: 3px; cursor: pointer; position: relative; transition: all 0.15s;
+    }
+    .cb-orange:checked { background: #f97316; border-color: #f97316; }
+    .cb-orange:checked::after {
+      content: ''; position: absolute; left: 2px; top: -1px;
+      width: 5px; height: 9px; border: 2px solid white;
+      border-top: none; border-left: none; transform: rotate(45deg);
+    }
+    .cb-orange:indeterminate { background: #f97316; border-color: #f97316; }
+    .cb-orange:indeterminate::after {
+      content: ''; position: absolute; left: 2px; top: 4px;
+      width: 6px; height: 2px; background: white;
+    }
+    .tab-badge { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 5px; }
+    .tab-badge-blog { background: #431407; color: #fb923c; }
+    .tab-badge-view { background: #431407; color: #fb923c; }
+    .tab-badge-cafe { background: #14532d; color: #4ade80; }
+    .tab-badge-kin  { background: #3b0764; color: #c084fc; }
+    .status-idle    { background: #1f2937; color: #6b7280; }
+    .status-running { background: #1c3461; color: #60a5fa; }
+    .status-review  { background: #14532d; color: #4ade80; }
+    .status-error   { background: #450a0a; color: #f87171; }
+    .ws-dot { width: 7px; height: 7px; border-radius: 50%; }
+    .ws-ok  { background: #22c55e; }
+    .ws-bad { background: #ef4444; animation: pulse 1s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+    .url-row { background: #1a1d27; border: 1px solid #2d3748; border-radius: 8px; }
+    .url-row:hover { border-color: #374151; }
+    .url-row.drag-over { border-color: #f97316; background: #1f1408; }
+  </style>
+</head>
+<body class="h-screen flex flex-col overflow-hidden">
+
+<!-- ── Header ── -->
+<header class="flex items-center justify-between px-5 py-3 shrink-0" style="background:#161b27;border-bottom:1px solid #1f2937;">
+  <div class="flex items-center gap-3">
+    <div class="flex items-center gap-1.5">
+      <span id="ws-dot" class="ws-dot ws-bad"></span>
+    </div>
+    <span class="font-semibold text-sm text-white">키워드 필터</span>
+    <span id="status-badge" class="text-xs px-2.5 py-0.5 rounded-full status-idle">대기</span>
+  </div>
+  <div class="flex gap-1.5">
+    <button onclick="showTab('search')" id="tab-btn-search"
+      class="text-xs px-4 py-1.5 rounded-lg font-medium transition-all" style="background:#f97316;color:white;">검색</button>
+    <button onclick="showTab('settings')" id="tab-btn-settings"
+      class="text-xs px-4 py-1.5 rounded-lg font-medium transition-all" style="background:#1f2937;color:#9ca3af;">설정</button>
+    <button onclick="softRefresh()" title="새로고침"
+      class="flex items-center justify-center rounded-lg transition-all" style="width:32px;height:32px;background:#1f2937;color:#9ca3af;">
+      <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+      </svg>
+    </button>
+  </div>
+</header>
+
+<!-- ── Search Tab ── -->
+<div id="tab-search" class="flex-1 flex flex-col overflow-hidden p-4 gap-3">
+
+  <!-- Controls -->
+  <div class="flex items-center gap-2.5 shrink-0">
+    <label class="text-xs text-gray-500">날짜</label>
+    <input type="date" id="target-date" class="px-3 py-1.5" style="width:150px;">
+    <button onclick="startSearch()" id="btn-start" class="btn-primary">수집 시작</button>
+    <button onclick="stopSearch()" id="btn-stop" class="btn-ghost hidden">중단</button>
+    <div class="flex-1"></div>
+    <span id="result-count" class="text-xs text-gray-500"></span>
+    <button onclick="createFolders()" id="btn-create" class="btn-ghost hidden"
+      style="border-color:#16a34a;color:#4ade80;">선택 폴더 생성</button>
+  </div>
+
+  <!-- Error banner -->
+  <div id="error-banner" class="hidden px-4 py-2.5 rounded-lg text-xs text-red-300 shrink-0" style="background:#450a0a;border:1px solid #7f1d1d;">
+    <span id="error-msg-text"></span>
+  </div>
+
+  <!-- Main -->
+  <div class="flex gap-3 flex-1 overflow-hidden">
+
+    <!-- Results table -->
+    <div class="flex-1 overflow-auto rounded-xl" style="border:1px solid #1f2937;">
+      <table class="w-full text-xs min-w-max">
+        <thead style="background:#161b27;position:sticky;top:0;z-index:10;">
+          <tr style="color:#6b7280;border-bottom:1px solid #1f2937;">
+            <th class="px-3 py-2.5 text-left w-8">
+              <input type="checkbox" id="check-all" onchange="toggleAll(this.checked)" class="cb-orange">
+            </th>
+            <th class="px-3 py-2.5 text-left w-36">업체명</th>
+            <th class="px-3 py-2.5 text-left w-14">탭</th>
+            <th class="px-3 py-2.5 text-left" style="min-width:200px;">게시글 제목</th>
+            <th class="px-3 py-2.5 text-left w-24">날짜</th>
+            <th class="px-3 py-2.5 text-left w-28">사기 유형</th>
+            <th class="px-3 py-2.5 text-left w-36">사기 사이트</th>
+            <th class="px-3 py-2.5 text-left w-24">WHOIS</th>
+          </tr>
+        </thead>
+        <tbody id="results-tbody">
+          <tr id="empty-row">
+            <td colspan="8" class="text-center py-20 text-gray-600">수집 결과가 없습니다</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Log -->
+    <div class="w-72 shrink-0 rounded-xl flex flex-col overflow-hidden" style="background:#161b27;border:1px solid #1f2937;">
+      <div class="px-3 py-2.5 text-xs font-medium shrink-0" style="color:#6b7280;border-bottom:1px solid #1f2937;">실행 로그</div>
+      <div id="log-panel" class="flex-1 overflow-y-auto p-2.5 text-xs font-mono space-y-0.5 leading-relaxed" style="color:#6b7280;"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── Settings Tab ── -->
+<div id="tab-settings" class="hidden flex-1 overflow-y-auto">
+  <div style="max-width:680px;margin:0 auto;padding:24px 20px 40px;">
+    <div class="space-y-6">
+
+      <!-- 검색 URL -->
+      <section>
+        <div class="mb-3">
+          <h3 class="text-sm font-semibold text-white">검색 URL</h3>
+          <p class="text-xs mt-0.5" style="color:#6b7280;">네이버 검색 결과 URL을 직접 입력합니다. 탭(블로그/VIEW/카페)은 URL에서 자동 감지됩니다.</p>
+        </div>
+        <div class="flex gap-2 mb-3">
+          <input type="text" id="s-new-url" onkeydown="if(event.key==='Enter')addUrl()"
+            class="flex-1 px-3 py-2" style="font-family:monospace;">
+          <button onclick="addUrl()" class="btn-ghost" style="white-space:nowrap;">+ 추가</button>
+        </div>
+        <div id="url-list" class="space-y-1.5"></div>
+      </section>
+
+      <div style="border-top:1px solid #1f2937;"></div>
+
+      <!-- 지식인 키워드 -->
+      <section>
+        <div class="flex items-center justify-between mb-3">
+          <div>
+            <h3 class="text-sm font-semibold text-white">지식인 키워드 검색</h3>
+            <p class="text-xs mt-0.5" style="color:#6b7280;">키워드로 네이버 지식인을 검색합니다. 보조 검색용.</p>
+          </div>
+          <div id="kin-toggle" onclick="toggleKin()" class="cursor-pointer select-none"
+            style="width:44px;height:24px;border-radius:12px;background:#374151;position:relative;transition:background 0.2s;">
+            <span id="kin-dot" style="position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:white;box-shadow:0 1px 3px rgba(0,0,0,.4);transition:left 0.2s;"></span>
+          </div>
+        </div>
+        <div id="kin-section" class="hidden space-y-2">
+          <textarea id="s-keywords" rows="3" oninput="scheduleSave()"
+            placeholder="코인사기, 리딩사기, 주식사기"
+            class="w-full px-3 py-2 resize-none" style="font-family:monospace;"></textarea>
+          <p class="text-xs" style="color:#6b7280;">쉼표 또는 줄바꿈으로 구분</p>
+        </div>
+      </section>
+
+      <div style="border-top:1px solid #1f2937;"></div>
+
+      <!-- 출력 폴더 -->
+      <section>
+        <div class="mb-3">
+          <h3 class="text-sm font-semibold text-white">출력 폴더 경로</h3>
+          <p class="text-xs mt-0.5" style="color:#6b7280;"><code style="background:#1f2937;padding:1px 5px;border-radius:4px;font-size:11px;">YYMMDD 업체명</code> 형식으로 하위 폴더가 생성됩니다.</p>
+        </div>
+        <div class="flex gap-2">
+          <input type="text" id="s-output-path" oninput="scheduleSave(); updatePathDisplay()"
+            placeholder=""
+            class="flex-1 px-3 py-2" style="font-family:monospace;">
+          <button class="btn-ghost" style="padding:6px 10px;cursor:pointer;" title="폴더 선택" onclick="browseFolder()">
+            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="pointer-events:none;">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"/>
+            </svg>
+          </button>
+        </div>
+        <p id="path-display" class="text-xs px-1 mt-1 break-all" style="color:#6b7280;font-family:monospace;display:none;"></p>
+      </section>
+
+      <div style="border-top:1px solid #1f2937;"></div>
+
+      <!-- 자사 게시글 자동 제외 안내 -->
+      <section>
+        <div class="px-4 py-3 rounded-xl text-xs" style="background:#1a1d27;border:1px solid #2d3748;color:#9ca3af;">
+          <span class="font-semibold text-white">자사 게시글 자동 제외</span>
+          &nbsp;—&nbsp;블로그 계정 설정의 모든 blog_id가 검색 결과에서 자동으로 제외됩니다. 별도 설정 불필요.
+        </div>
+        <div class="mt-3">
+          <label class="text-xs mb-1 block" style="color:#6b7280;">추가 제외 블로그 ID (선택)</label>
+          <textarea id="s-exclude-ids" rows="2" oninput="scheduleSave()"
+            placeholder="blog_id1, blog_id2"
+            class="w-full px-3 py-2 resize-none" style="font-family:monospace;"></textarea>
+        </div>
+      </section>
+
+      <div style="border-top:1px solid #1f2937;"></div>
+
+      <!-- 스캠 키워드 필터 -->
+      <section>
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="text-sm font-semibold text-white">사기 키워드 필터</h3>
+            <p class="text-xs mt-0.5" style="color:#6b7280;">
+              켜면 사기·피해 관련 게시글만 수집합니다.<br>
+              <span style="color:#f97316;">특정 법인명·브랜드 검색 시에는 꺼두세요.</span>
+            </p>
+          </div>
+          <div id="scam-filter-toggle" onclick="toggleScamFilter()"
+            class="cursor-pointer select-none"
+            style="width:44px;height:24px;border-radius:12px;background:#374151;position:relative;transition:background 0.2s;">
+            <span id="scam-filter-dot" style="position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:white;box-shadow:0 1px 3px rgba(0,0,0,.4);transition:left 0.2s;"></span>
+          </div>
+        </div>
+      </section>
+
+      <div style="border-top:1px solid #1f2937;"></div>
+
+      <!-- 네이버 API 키 -->
+      <section>
+        <div class="mb-3">
+          <h3 class="text-sm font-semibold text-white">네이버 API 키</h3>
+          <p class="text-xs mt-0.5" style="color:#6b7280;">네이버 개발자센터 → 검색 API. 일 25,000건 한도.</p>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-xs mb-1 block" style="color:#6b7280;">Client ID</label>
+            <input type="text" id="s-client-id" oninput="scheduleSave()" class="w-full px-3 py-2" style="font-family:monospace;">
+          </div>
+          <div>
+            <label class="text-xs mb-1 block" style="color:#6b7280;">Client Secret</label>
+            <input type="password" id="s-client-secret" oninput="scheduleSave()" class="w-full px-3 py-2" style="font-family:monospace;">
+          </div>
+        </div>
+      </section>
+
+      <div style="border-top:1px solid #1f2937;"></div>
+
+      <!-- Gemini API 키 -->
+      <section>
+        <div class="mb-3">
+          <h3 class="text-sm font-semibold text-white">Gemini API 키</h3>
+          <p class="text-xs mt-0.5" style="color:#6b7280;">AI 분석에 사용됩니다. 없으면 분석 단계를 건너뜁니다.</p>
+        </div>
+        <div class="flex gap-2 mb-2">
+          <input type="text" id="s-new-gemini" placeholder="AIza..."
+            onkeydown="if(event.key==='Enter')addGeminiKey()"
+            class="flex-1 px-3 py-2" style="font-family:monospace;">
+          <button onclick="addGeminiKey()" class="btn-ghost" style="white-space:nowrap;">+ 추가</button>
+        </div>
+        <div id="gemini-key-list" class="space-y-1.5"></div>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+<!-- Auto-save toast -->
+<div id="saved-toast" class="fixed top-14 right-4 hidden items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium z-50 shadow-xl"
+  style="background:#14532d;color:#4ade80;">✓ 저장됨</div>
+
+<script>
+// ─── State ─────────────────────────────────────────────────────────────────
+let appState = { status:'idle', logs:[], items:[], target_date:'', error_msg:'' };
+let settings = {};
+let ws = null;
+let saveTimer = null;
+let settingsLoaded = false;
+let urlDragIdx = null;
+
+// ─── WebSocket ─────────────────────────────────────────────────────────────
+function connect() {
+  try {
+    ws = new WebSocket('ws://localhost:8766/ws');
+    ws.onopen = () => {
+      document.getElementById('ws-dot').className = 'ws-dot ws-ok';
+    };
+    ws.onmessage = e => {
+      try { appState = JSON.parse(e.data); render(); } catch(err) {}
+    };
+    ws.onclose = () => {
+      document.getElementById('ws-dot').className = 'ws-dot ws-bad';
+      setTimeout(connect, 2000);
+    };
+    ws.onerror = () => {
+      document.getElementById('ws-dot').className = 'ws-dot ws-bad';
+    };
+  } catch(e) {
+    setTimeout(connect, 2000);
+  }
+}
+
+// ─── Render ────────────────────────────────────────────────────────────────
+function render() {
+  renderStatus();
+  renderResults();
+  renderLogs();
+  renderControls();
+  renderErrorBanner();
+}
+
+function renderStatus() {
+  const badge = document.getElementById('status-badge');
+  const cfg = {
+    idle:    ['대기',     'status-idle'],
+    running: ['수집 중',  'status-running'],
+    review:  ['검토 대기','status-review'],
+    error:   ['오류',     'status-error'],
+  };
+  const [text, cls] = cfg[appState.status] || cfg.idle;
+  badge.textContent = text;
+  badge.className = `text-xs px-2.5 py-0.5 rounded-full ${cls}`;
+}
+
+function renderErrorBanner() {
+  const banner = document.getElementById('error-banner');
+  const msgEl  = document.getElementById('error-msg-text');
+  if (appState.error_msg) {
+    msgEl.textContent = appState.error_msg;
+    banner.classList.remove('hidden');
+  } else {
+    banner.classList.add('hidden');
+  }
+}
+
+function renderControls() {
+  const running  = appState.status === 'running';
+  const hasItems = appState.items.length > 0;
+  const selCount = appState.items.filter(i => i.selected).length;
+
+  document.getElementById('btn-start').disabled = running;
+  document.getElementById('btn-stop').classList.toggle('hidden', !running);
+  document.getElementById('btn-create').classList.toggle('hidden', !hasItems);
+  document.getElementById('result-count').textContent =
+    hasItems ? `총 ${appState.items.length}개 업체 · ${selCount}개 선택됨` : '';
+}
+
+function renderResults() {
+  const tbody    = document.getElementById('results-tbody');
+  const emptyRow = document.getElementById('empty-row');
+  if (!appState.items.length) {
+    tbody.innerHTML = ''; tbody.appendChild(emptyRow); emptyRow.style.display = ''; return;
+  }
+  emptyRow.style.display = 'none';
+  appState.items.forEach((item, idx) => {
+    let row = tbody.querySelector(`tr[data-idx="${idx}"]`);
+    if (!row) { row = document.createElement('tr'); row.dataset.idx = idx; tbody.appendChild(row); }
+    row.className = item.selected ? '' : 'opacity-40';
+    row.style.borderBottom = '1px solid #1f2937';
+    row.innerHTML = buildRow(idx, item);
+  });
+  tbody.querySelectorAll('tr[data-idx]').forEach(r => {
+    if (parseInt(r.dataset.idx) >= appState.items.length) r.remove();
+  });
+  const allSel  = appState.items.every(i => i.selected);
+  const someSel = appState.items.some(i => i.selected);
+  const ca = document.getElementById('check-all');
+  ca.checked = allSel; ca.indeterminate = someSel && !allSel;
+}
+
+function tabBadge(tab) {
+  const cls = { blog:'tab-badge-blog', view:'tab-badge-view', cafe:'tab-badge-cafe', kin:'tab-badge-kin' }[tab] || 'tab-badge-blog';
+  const lbl = { blog:'블로그', view:'VIEW', cafe:'카페', kin:'지식인' }[tab] || (tab||'?').toUpperCase();
+  return `<span class="tab-badge ${cls}">${lbl}</span>`;
+}
+
+function buildRow(idx, item) {
+  const pd = item.post_date || '';
+  const dateStr = pd.length===8 ? `${pd.slice(0,4)}-${pd.slice(4,6)}-${pd.slice(6,8)}` : pd;
+  const scamUrls = (item.scam_site_urls||[]).map(u=>`<span style="color:#fb923c;">${esc(u)}</span>`).join('<br>');
+  return `
+    <td class="px-3 py-2"><input type="checkbox" ${item.selected?'checked':''} onchange="toggleItem(${idx},this.checked)" class="cb-orange"></td>
+    <td class="px-3 py-2">
+      <span contenteditable="true" class="block truncate cursor-text" style="max-width:130px;color:#e5e7eb;"
+        onblur="updateItem(${idx},'company_name',this.textContent.trim())"
+        onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur()}"
+      >${esc(item.company_name||'')}</span>
+    </td>
+    <td class="px-3 py-2">${tabBadge(item.search_tab)}</td>
+    <td class="px-3 py-2">
+      <a href="${esc(item.post_url||'')}" target="_blank" style="color:#9ca3af;max-width:240px;display:block;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;"
+        class="hover:underline" title="${esc(item.post_title||'')}">${esc(item.post_title||'')}</a>
+    </td>
+    <td class="px-3 py-2" style="color:#6b7280;white-space:nowrap;">${dateStr}</td>
+    <td class="px-3 py-2" style="color:#d1d5db;">${esc((item.scam_types||[]).join(', '))}</td>
+    <td class="px-3 py-2">${scamUrls||'<span style="color:#374151;">—</span>'}</td>
+    <td class="px-3 py-2" style="color:#6b7280;">${esc(item.whois_created||'')}</td>
+  `;
+}
+
+function renderLogs() {
+  const panel = document.getElementById('log-panel');
+  const atBottom = panel.scrollHeight - panel.scrollTop <= panel.clientHeight + 40;
+  panel.innerHTML = (appState.logs||[]).map(log => {
+    let color = '#4b5563';
+    if (log.includes('⚠')) color = '#fbbf24';
+    else if (log.includes('완료')||log.includes('발견')||log.includes('✓')) color = '#4ade80';
+    else if (log.includes('오류')||log.includes('error')) color = '#f87171';
+    else if (log.includes('검색 중')||log.includes('분석 중')) color = '#60a5fa';
+    else if (log.includes('WHOIS')) color = '#c084fc';
+    return `<div style="color:${color};">${esc(log)}</div>`;
+  }).join('');
+  if (atBottom) panel.scrollTop = panel.scrollHeight;
+}
+
+// ─── Actions ───────────────────────────────────────────────────────────────
+function startSearch() {
+  const date = document.getElementById('target-date').value;
+  const btn = document.getElementById('btn-start');
+  btn.disabled = true;
+  btn.textContent = '시작 중...';
+  fetch('/start', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({target_date: date}),
+  }).then(r => r.json()).then(data => {
+    if (!data.ok) {
+      btn.disabled = false;
+      btn.textContent = '수집 시작';
+      alert(data.msg || '시작 실패');
+    }
+  }).catch(err => {
+    btn.disabled = false;
+    btn.textContent = '수집 시작';
+    alert('서버 연결 실패: ' + err.message);
+  });
+}
+
+function stopSearch() {
+  fetch('/stop', {method:'POST'});
+}
+
+function toggleItem(idx, checked) {
+  appState.items[idx].selected = checked;
+  renderControls();
+  fetch(`/items/${idx}`, {method:'PATCH', headers:{'Content-Type':'application/json'}, body:JSON.stringify({selected:checked})});
+}
+
+function toggleAll(checked) {
+  appState.items.forEach((item,idx) => {
+    item.selected = checked;
+    fetch(`/items/${idx}`, {method:'PATCH', headers:{'Content-Type':'application/json'}, body:JSON.stringify({selected:checked})});
+  });
+  renderResults(); renderControls();
+}
+
+function updateItem(idx, key, val) {
+  if (!appState.items[idx]) return;
+  appState.items[idx][key] = val;
+  fetch(`/items/${idx}`, {method:'PATCH', headers:{'Content-Type':'application/json'}, body:JSON.stringify({[key]:val})});
+}
+
+function createFolders() {
+  const indices = appState.items.map((item,idx) => item.selected?idx:-1).filter(i=>i>=0);
+  if (!indices.length) { alert('선택된 항목이 없습니다.'); return; }
+  fetch('/create-folders', {
+    method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({indices}),
+  }).then(r=>r.json()).then(data => {
+    if (data.ok) alert(`✓ ${data.results.length}개 폴더 생성 완료`);
+    else alert('오류: ' + data.msg);
+  });
+}
+
+// ─── Settings ──────────────────────────────────────────────────────────────
+async function loadSettings() {
+  try {
+    const data = await fetch('/settings').then(r => r.json());
+    settings = data;
+    document.getElementById('s-client-id').value      = data.naver_client_id || '';
+    document.getElementById('s-client-secret').value  = data.naver_client_secret || '';
+    document.getElementById('s-output-path').value    = data.output_path || '';
+    updatePathDisplay();
+    document.getElementById('s-keywords').value       = (data.keywords||[]).join(', ');
+    document.getElementById('s-exclude-ids').value    = (data.exclude_blog_ids||[]).join(', ');
+    setKinEnabled(data.kin_enabled || false);
+    setScamFilter(data.scam_filter_enabled || false);
+    renderUrlList(data.search_urls || []);
+    renderGeminiKeyList((data.gemini||{}).api_keys || []);
+    setTimeout(() => { settingsLoaded = true; }, 300);
+  } catch(e) {
+    console.error('Settings load failed:', e);
+  }
+}
+
+function scheduleSave() {
+  if (!settingsLoaded) return;
+  if (saveTimer) clearTimeout(saveTimer);
+  saveTimer = setTimeout(doSave, 800);
+}
+
+async function doSave() {
+  const payload = {
+    naver_client_id:     document.getElementById('s-client-id').value.trim(),
+    naver_client_secret: document.getElementById('s-client-secret').value.trim(),
+    output_path:         document.getElementById('s-output-path').value.trim(),
+    keywords:            document.getElementById('s-keywords').value.split(/[,\n]/).map(k=>k.trim()).filter(Boolean),
+    exclude_blog_ids:    document.getElementById('s-exclude-ids').value.split(/[,\n]/).map(k=>k.trim()).filter(Boolean),
+    kin_enabled:         settings.kin_enabled || false,
+    search_urls:         settings.search_urls || [],
+    gemini:              settings.gemini || {},
+  };
+  settings = {...settings, ...payload};
+  try {
+    await fetch('/settings', {method:'PATCH', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)});
+    const toast = document.getElementById('saved-toast');
+    toast.classList.remove('hidden'); toast.classList.add('flex');
+    setTimeout(() => { toast.classList.add('hidden'); toast.classList.remove('flex'); }, 1500);
+  } catch(e) {}
+}
+
+// ─── KIN Toggle ────────────────────────────────────────────────────────────
+function setKinEnabled(on) {
+  settings.kin_enabled = on;
+  const toggle = document.getElementById('kin-toggle');
+  const dot    = document.getElementById('kin-dot');
+  toggle.style.background = on ? '#f97316' : '#374151';
+  dot.style.left = on ? '23px' : '3px';
+  document.getElementById('kin-section').classList.toggle('hidden', !on);
+}
+
+function toggleKin() { setKinEnabled(!settings.kin_enabled); scheduleSave(); }
+
+// ─── Scam Filter Toggle ────────────────────────────────────────────────────
+function setScamFilter(on) {
+  settings.scam_filter_enabled = on;
+  const toggle = document.getElementById('scam-filter-toggle');
+  const dot    = document.getElementById('scam-filter-dot');
+  toggle.style.background = on ? '#f97316' : '#374151';
+  dot.style.left = on ? '23px' : '3px';
+}
+function toggleScamFilter() { setScamFilter(!settings.scam_filter_enabled); doSave(); }
+
+async function browseFolder() {
+  try {
+    const resp = await fetch('/browse-folder');
+    const data = await resp.json();
+    if (data.ok && data.path) {
+      document.getElementById('s-output-path').value = data.path;
+      scheduleSave();
+      updatePathDisplay();
+    }
+  } catch (e) { console.error('폴더 선택 오류:', e); }
+}
+
+function updatePathDisplay() {
+  const val = document.getElementById('s-output-path').value.trim();
+  const el  = document.getElementById('path-display');
+  if (val) { el.textContent = val; el.style.display = 'block'; }
+  else { el.style.display = 'none'; }
+}
+
+// ─── URL List ──────────────────────────────────────────────────────────────
+function detectTab(url) {
+  const wm = url.match(/where=(\w+)/i);
+  const sm = url.match(/ssc=tab\.(\w+)/i);
+  const k  = (wm?.[1]||sm?.[1]||'').toLowerCase();
+  return {blog:'blog',view:'view',cafearticle:'cafe',cafe:'cafe',kin:'kin'}[k] || 'blog';
+}
+
+function extractQuery(url) {
+  const m = url.match(/[?&]query=([^&]+)/);
+  return m ? decodeURIComponent(m[1].replace(/\+/g,' ')) : '';
+}
+
+function renderUrlList(rawUrls) {
+  settings.search_urls = rawUrls.map(u => typeof u==='string' ? {url:u,enabled:true} : u);
+  const container = document.getElementById('url-list');
+  container.innerHTML = '';
+
+  if (!settings.search_urls.length) {
+    container.innerHTML = '<p style="color:#4b5563;font-size:12px;padding:4px 4px;">등록된 URL이 없습니다.</p>';
+    return;
+  }
+
+  const enabledCount = settings.search_urls.filter(u=>u.enabled).length;
+  const allOn = enabledCount === settings.search_urls.length;
+
+  // Select all row
+  const allRow = document.createElement('div');
+  allRow.style.cssText = 'display:flex;align-items:center;gap:8px;padding:4px 8px;';
+  allRow.innerHTML = `
+    <input type="checkbox" ${allOn?'checked':''} onchange="toggleAllUrls(this.checked)" class="cb-orange">
+    <span style="font-size:11px;color:#6b7280;">전체 선택 (${enabledCount}/${settings.search_urls.length})</span>
+  `;
+  container.appendChild(allRow);
+
+  settings.search_urls.forEach((item, i) => {
+    const tab   = detectTab(item.url);
+    const query = extractQuery(item.url);
+    const badgeCls = {blog:'tab-badge-blog',view:'tab-badge-view',cafe:'tab-badge-cafe',kin:'tab-badge-kin'}[tab]||'tab-badge-blog';
+    const badgeLbl = {blog:'블로그',view:'VIEW',cafe:'카페',kin:'지식인'}[tab]||'?';
+
+    const div = document.createElement('div');
+    div.draggable = true;
+    div.dataset.i = i;
+    div.className = 'url-row';
+    div.style.cssText = `display:flex;align-items:center;gap:8px;padding:8px 12px;opacity:${item.enabled?1:0.45};`;
+    div.innerHTML = `
+      <svg style="width:14px;height:14px;color:#4b5563;cursor:grab;flex-shrink:0;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16"/>
+      </svg>
+      <input type="checkbox" ${item.enabled?'checked':''} onchange="toggleUrlItem(${i},this.checked)" class="cb-orange" style="flex-shrink:0;">
+      <span class="tab-badge ${badgeCls}" style="flex-shrink:0;">${badgeLbl}</span>
+      ${query ? `<span style="font-size:11px;color:#e5e7eb;font-weight:500;flex-shrink:0;">"${esc(query)}"</span>` : ''}
+      <a href="${esc(item.url)}" target="_blank" style="flex:1;font-family:monospace;font-size:10px;color:#4b5563;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;"
+        class="hover:text-orange-400 transition-colors" title="${esc(item.url)}">${esc(item.url)}</a>
+      <a href="${esc(item.url)}" target="_blank" style="flex-shrink:0;color:#4b5563;" class="hover:text-orange-400 transition-colors" title="새 탭에서 열기">
+        <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+        </svg>
+      </a>
+      <button onclick="removeUrl(${i})" style="flex-shrink:0;color:#4b5563;" class="hover:text-red-400 transition-colors">
+        <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+        </svg>
+      </button>
+    `;
+
+    div.addEventListener('dragstart', () => { urlDragIdx = i; div.style.opacity='0.3'; });
+    div.addEventListener('dragend',   () => { urlDragIdx = null; div.style.opacity = item.enabled?'1':'0.45'; });
+    div.addEventListener('dragover',  e => { e.preventDefault(); div.classList.add('drag-over'); });
+    div.addEventListener('dragleave', () => div.classList.remove('drag-over'));
+    div.addEventListener('drop', () => {
+      div.classList.remove('drag-over');
+      if (urlDragIdx !== null && urlDragIdx !== i) {
+        const arr = [...settings.search_urls];
+        const [moved] = arr.splice(urlDragIdx, 1);
+        arr.splice(i, 0, moved);
+        renderUrlList(arr);
+        doSave();
+      }
+    });
+
+    container.appendChild(div);
+  });
+}
+
+function addUrl() {
+  const input = document.getElementById('s-new-url');
+  const url = input.value.trim();
+  if (!url) return;
+  settings.search_urls = [...(settings.search_urls||[]), {url, enabled:true}];
+  renderUrlList(settings.search_urls);
+  input.value = '';
+  doSave();
+}
+
+function removeUrl(idx) {
+  settings.search_urls.splice(idx, 1);
+  renderUrlList(settings.search_urls);
+  doSave();
+}
+
+function toggleUrlItem(idx, enabled) {
+  settings.search_urls[idx].enabled = enabled;
+  renderUrlList(settings.search_urls);
+  doSave();
+}
+
+function toggleAllUrls(enabled) {
+  settings.search_urls = settings.search_urls.map(u => ({...u, enabled}));
+  renderUrlList(settings.search_urls);
+  doSave();
+}
+
+// ─── Gemini Keys ───────────────────────────────────────────────────────────
+function renderGeminiKeyList(keys) {
+  if (!settings.gemini) settings.gemini = {};
+  settings.gemini.api_keys = keys || [];
+  const container = document.getElementById('gemini-key-list');
+  container.innerHTML = '';
+  if (!keys || !keys.length) {
+    container.innerHTML = '<p style="color:#4b5563;font-size:12px;padding:4px;">등록된 키가 없습니다.</p>';
+    return;
+  }
+  keys.forEach((key, i) => {
+    const k = typeof key==='string' ? key : (key.api_key||'');
+    const div = document.createElement('div');
+    div.className = 'url-row';
+    div.style.cssText = 'display:flex;align-items:center;gap:8px;padding:8px 12px;';
+    div.innerHTML = `
+      <span style="flex:1;font-family:monospace;font-size:11px;color:#6b7280;">${k.slice(0,8)}...${k.slice(-4)}</span>
+      <button onclick="removeGeminiKey(${i})" style="color:#4b5563;" class="hover:text-red-400 transition-colors">
+        <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    `;
+    container.appendChild(div);
+  });
+}
+
+function addGeminiKey() {
+  const input = document.getElementById('s-new-gemini');
+  const key = input.value.trim();
+  if (!key) return;
+  if (!settings.gemini) settings.gemini = {};
+  settings.gemini.api_keys = [...(settings.gemini.api_keys||[]), key];
+  renderGeminiKeyList(settings.gemini.api_keys);
+  input.value = '';
+  scheduleSave();
+}
+
+function removeGeminiKey(idx) {
+  settings.gemini.api_keys.splice(idx, 1);
+  renderGeminiKeyList(settings.gemini.api_keys);
+  scheduleSave();
+}
+
+// ─── Tab ───────────────────────────────────────────────────────────────────
+function showTab(tab) {
+  ['search','settings'].forEach(t => {
+    document.getElementById(`tab-${t}`).classList.toggle('hidden', t!==tab);
+    const btn = document.getElementById(`tab-btn-${t}`);
+    if (t===tab) { btn.style.background='#f97316'; btn.style.color='white'; }
+    else         { btn.style.background='#1f2937'; btn.style.color='#9ca3af'; }
+  });
+}
+
+// ─── Utils ─────────────────────────────────────────────────────────────────
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ─── Init ──────────────────────────────────────────────────────────────────
+async function softRefresh() {
+  settingsLoaded = false;
+  await loadSettings();
+  const data = await fetch('/status').then(r => r.json());
+  appState = data;
+  render();
+}
+
+function init() {
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  document.getElementById('target-date').value = yesterday.toISOString().slice(0,10);
+  connect();
+  loadSettings();
+}
+
+init();
+</script>
+</body>
+</html>

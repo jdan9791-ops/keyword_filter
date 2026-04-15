@@ -1,0 +1,17 @@
+# Build artifacts
+dist/
+build/
+__pycache__/
+
+# Dependencies
+node_modules/
+
+# Config (API keys)
+config.json
+
+# Logs
+logs/
+
+# OS files
+.DS_Store
+*.pyc

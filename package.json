@@ -1,0 +1,76 @@
+{
+  "name": "keyword-filter",
+  "version": "1.0.0",
+  "description": "사기 키워드 필터 검색기",
+  "main": "electron/main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist:win": "electron-builder --win",
+    "dist:mac": "electron-builder --mac",
+    "dist": "electron-builder --win --mac"
+  },
+  "devDependencies": {
+    "electron": "^35.3.0",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "com.damduk.keyword-filter",
+    "productName": "키워드 필터 검색기",
+    "copyright": "담덕법률사무소",
+    "files": [
+      "electron/**",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": ".",
+        "to": ".",
+        "filter": [
+          "keyword_filter.py",
+          "scraper.py",
+          "requirements.txt",
+          "config.json",
+          "templates/**"
+        ]
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "키워드 필터 검색기"
+    },
+    "mac": {
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
+      ],
+      "icon": "icon.icns",
+      "category": "public.app-category.productivity"
+    },
+    "dmg": {
+      "title": "키워드 필터 검색기 설치",
+      "window": {
+        "width": 540,
+        "height": 380
+      }
+    }
+  }
+}
