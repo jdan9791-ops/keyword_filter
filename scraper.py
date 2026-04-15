@@ -75,7 +75,10 @@ def _detect_tab(url: str) -> str:
 
 def _extract_query(url: str) -> str:
     m = re.search(r"[?&]query=([^&]+)", url)
-    return m.group(1).replace("+", " ") if m else ""
+    if not m:
+        return ""
+    from urllib.parse import unquote_plus
+    return unquote_plus(m.group(1))
 
 
 def _extract_blog_id(url: str) -> str:
@@ -111,6 +114,24 @@ async def _call_naver_api(
         return []
 
 
+def _extract_from_title(title: str) -> tuple[str, list[str]]:
+    """제목에서 업체명과 URL 추출 (Gemini 보조/대체)"""
+    # URL 패턴: xxx.com / sub.xxx.com / xxx.shop / xxx.kr 등
+    url_pattern = re.compile(
+        r'\b([a-zA-Z0-9][a-zA-Z0-9\-\.]*\.'
+        r'(?:com|net|io|shop|kr|cc|pro|xyz|org|co|info|biz|app|site))'
+        r'(?:\.[a-zA-Z]{2,})?\b',
+        re.IGNORECASE
+    )
+    urls = [m.group(1) for m in url_pattern.finditer(title)]
+
+    # 업체명: '사기' 또는 '사칭' 앞 첫 토큰(들)
+    name_match = re.search(r'^(.+?)(?:\s+사기|\s+사칭|\s+피해)', title)
+    company = name_match.group(1).strip() if name_match else ""
+
+    return company, urls
+
+
 def _process_scam_url(url: str) -> str:
     """URL 정리: 앱스토어는 전체 경로 유지, 일반 도메인은 도메인만 추출"""
     url = url.strip()
@@ -132,26 +153,16 @@ async def _analyze_with_gemini(title: str, description: str, gemini_cfg: dict) -
     model_name = gemini_cfg.get("model", "gemini-1.5-flash")
 
     prompt = (
-        "다음 네이버 검색 결과를 분석하여 JSON만 출력하세요.\n\n"
+        "다음 네이버 블로그 게시글을 분석하여 JSON만 출력하세요.\n\n"
         f"게시글 제목: {title}\n"
         f"게시글 미리보기: {description}\n\n"
-        "【중요】 먼저 이 글이 '특정 업체/사이트/앱에 의한 사기 피해 사례'인지 판별하세요.\n"
-        "다음에 해당하면 is_scam_case: false로 판정하세요:\n"
-        "- 개인회생, 개인파산, 채무 상담 등 단순 법률 질문\n"
-        "- 주식/코인/해외선물 투자 방법, 초보 질문, 계좌 개설 등 일반 투자 질문\n"
-        "- ETF, 펀드, 재테크 등 일반 금융 질문\n"
-        "- 사기와 무관한 일상 질문 (영어, 역사, 취미, 연애 등)\n"
-        "- 특정 사기 업체명이나 사기 사이트 URL이 없는 막연한 질문\n"
-        "- 변호사 추천/비용 문의만 있고 구체적 사기 업체 정보가 없는 글\n\n"
         "추출 항목:\n"
-        "0. is_scam_case: 특정 업체/사이트의 사기 피해 사례이면 true, 아니면 false\n"
         "1. company_name: 사기 업체/플랫폼 이름 (영문 또는 브랜드명, 핵심 이름 하나만)\n"
         "2. company_name_korean: 사기 업체/플랫폼 한국어 이름 (있을 경우만, 없으면 빈 문자열)\n"
-        "3. scam_site_urls: 사기 관련 URL 목록 (도메인 또는 앱스토어 전체 URL 포함, 배열)\n"
-        "4. scam_types: 사기 유형 배열 (예: [\"코인사기\", \"리딩사기\"])\n"
-        "5. summary_lines: 피해 경위 요약 3~5줄 배열\n\n"
+        "3. scam_site_urls: 사기 관련 URL 목록 (도메인 또는 앱스토어 전체 URL, 배열)\n"
+        "4. scam_types: 사기 유형 배열 (예: [\"코인사기\", \"리딩사기\"])\n\n"
         "출력 형식 (JSON만, 다른 텍스트 금지):\n"
-        "{\"is_scam_case\": true, \"company_name\": \"\", \"company_name_korean\": \"\", \"scam_site_urls\": [], \"scam_types\": [], \"summary_lines\": []}"
+        "{\"company_name\": \"\", \"company_name_korean\": \"\", \"scam_site_urls\": [], \"scam_types\": []}"
     )
 
     try:
@@ -311,8 +322,8 @@ async def search_and_analyze(state, cfg: dict, target_date: str, broadcast_fn: C
     state.add_log(f"1차 수집 완료: {len(all_posts)}건")
     await broadcast_fn(state.to_dict())
 
-    # Phase B: 스캠 키워드 필터 (설정에서 비활성화 가능)
-    scam_filter = cfg.get("scam_filter_enabled", False)
+    # Phase B: 스캠 키워드 필터 (기본 활성화)
+    scam_filter = cfg.get("scam_filter_enabled", True)
     if scam_filter:
         filtered = [p for p in all_posts if _passes_scam_filter(p["title"], p["description"])]
         state.add_log(f"스캠 필터 통과: {len(filtered)}건 / {len(all_posts)}건")
@@ -346,20 +357,28 @@ async def search_and_analyze(state, cfg: dict, target_date: str, broadcast_fn: C
             _last_gemini_call = time.time()
             ai = await _analyze_with_gemini(post["title"], post["description"], gemini_cfg)
 
-        # 사기 사례가 아닌 글은 건너뛰기
-        if not ai.get("is_scam_case", True):
-            state.add_log(f"  → 사기 무관 글 제외")
-            continue
+        # 모든 게시글 수집 (법인명 검색으로 걸러진 글은 전부 수집 대상)
 
-        company_name = (ai.get("company_name") or "").strip() or post["title"][:20]
+        # 제목 기반 파싱 (Gemini 보조/대체)
+        title_company, title_urls = _extract_from_title(post["title"])
+
+        company_name = (ai.get("company_name") or "").strip() or title_company or post["title"][:20]
         company_name_korean = (ai.get("company_name_korean") or "").strip()
-        scam_site_urls = [
+
+        # URL: Gemini 추출 → 없으면 제목 파싱으로 보완
+        gemini_urls = [
             _process_scam_url(u)
             for u in ai.get("scam_site_urls", []) if u.strip()
         ]
-        scam_site_urls = [u for u in scam_site_urls if u]
+        gemini_urls = [u for u in gemini_urls if u]
+        if gemini_urls:
+            scam_site_urls = gemini_urls
+        else:
+            scam_site_urls = [_process_scam_url(u) for u in title_urls if u.strip()]
+            scam_site_urls = [u for u in scam_site_urls if u]
+
         scam_types = ai.get("scam_types", [])
-        scam_summary = "\n".join(ai.get("summary_lines", []))
+        scam_summary = ""
 
         company_key = company_name.lower()
         if company_key in seen_companies:
